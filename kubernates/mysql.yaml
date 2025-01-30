@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mysql-pod
+  labels:
+    tier: mysql
+spec:
+  containers:
+  - name: db
+    image: mysql
+    env:
+    - name: MYSQL_ROOT_PASSWORD
+      value: "rootpassword"
+    - name: MYSQL_DATABASE
+      value: "angular"
+    ports:
+    - containerPort: 3306
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: db
+spec:
+  selector:
+    tier: mysql
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
