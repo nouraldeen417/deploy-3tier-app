@@ -1,8 +1,7 @@
 version: '3.8'
 services:
   frontend:
-    build: ./front-end
-    container_name: my_frontend
+    image: 192.168.1.150:5000/my-frontend:latest
     environment:
       API_URL: http://localhost:3000 # Change this URL dynamically
     ports:
@@ -11,8 +10,7 @@ services:
       - backend
 
   backend:
-    build: ./backend
-    container_name: my_backend
+    image: 192.168.1.150:5000/my-backend:latest
     restart: always
     environment:
       DB_HOST: db  # Use the service name as the hostname

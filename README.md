@@ -11,6 +11,8 @@ Ensure you have the following installed:
 - Docker & Docker Compose
 - Kubernetes (kubeadm)
 - kubelet & kubectl
+- jenkins server with public iP or ngrok software
+
 
 ---
 
@@ -371,16 +373,153 @@ kubectl get services
 - **Backend:** `http://<node-ip>:30008`
 
 ---
+# Nginx Ingress Setup for 3-Tier Application
+
+This repository contains the necessary steps and configurations to deploy a 3-tier application using Nginx Ingress. Below, you'll find detailed information about setting up Nginx Ingress and deploying your application .
+
+## Prerequisites
+
+Before proceeding, ensure you have the following installed and configured:
+
+## Steps to Set Up Nginx Ingress
+
+### 1. Install Helm
+
+Helm is used to simplify the deployment of applications on Kubernetes. To install Helm, follow the official [Helm installation guide](https://helm.sh/docs/intro/install/).
+
+```bash
+# Example for Linux
+curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+```
+
+### 2. Install Nginx Ingress Controller
+
+Using Helm, you can easily install the Nginx Ingress Controller in your Kubernetes cluster.
+
+```bash
+# Add the Helm repository
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+
+# Update the Helm repository
+helm repo update
+
+# Install the Nginx Ingress Controller
+helm install ingress-nginx ingress-nginx/ingress-nginx
+```
+
+This will deploy the Nginx Ingress Controller in your cluster.
+
+### 3. Create and Deploy `ingress.yaml`
+
+Create an `ingress.yaml` file to define the routing rules for your application. Below is an example configuration:
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: my-app
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend
+            port:
+              number: 80
+
+```
+
+Deploy the Ingress resource to your Kubernetes cluster:
+
+```bash
+kubectl apply -f ingress.yaml
+```
+
+This will configure Nginx Ingress to route traffic to your application based on the specified rules.
+
+## Jenkins Pipeline for Deployment
+
+### 1. Create a Jenkins Item
+
+In your Jenkins server, create a new item (e.g., a pipeline job) to manage the deployment process.
+
+### 2. Configure Webhook Trigger
+
+Set up a webhook trigger in Jenkins to automatically start the pipeline whenever changes are pushed to your GitHub repository.
+
+### 3. Pipeline Script
+
+In the pipeline script, define the following stages:
+
+- **Build**: Build Docker images and push them to a private local registry and Docker Hub(optional).
+- **Test**: (Skipped for now)
+- **Deploy**: Deploy the application by running the Docker compose.
+
+Example Jenkins pipeline script:
+
+```groovy
+pipeline {
+    agent any
+
+    stages {
+        stage('pull src') {
+            steps {
+                echo 'pull src code from github repo'
+                git branch: 'main', url: 'https://github.com/nouraldeen417/deploy-3tier-app.git'
+            }
+        }
+        stage('build docker image') {
+            steps {
+                    sh "ls -l"
+                    sh "cd ./depi-angular-app/front-end/ && docker build -t app-frontend:$BUILD_NUMBER .   "
+                    sh "ls -l && pwd"
+                    sh "cd ./depi-angular-app/backend/   && docker build -t app-backend:$BUILD_NUMBER  .   "
+                    echo 'start my local registry'
+                    sh 'docker start registry'
+                    sh ' docker tag app-frontend:$BUILD_NUMBER 192.168.1.150:5000/app-frontend:$BUILD_NUMBER && docker tag app-backend:$BUILD_NUMBER 192.168.1.150:5000/app-backend:$BUILD_NUMBER '
+                    sh ' docker push 192.168.1.150:5000/app-frontend:$BUILD_NUMBER && docker push 192.168.1.150:5000/app-backend:$BUILD_NUMBER '                 
+                    echo 'optional push images in my public regitry '
+                withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'PASS', usernameVariable: 'USER')]) 
+                {
+                    sh 'docker login -u $USER -p $PASS'
+                    sh ' docker tag app-frontend:$BUILD_NUMBER nouraldeen152/app-frontend:$BUILD_NUMBER && docker tag app-backend:$BUILD_NUMBER nouraldeen152/app-backend:$BUILD_NUMBER '
+                    sh 'docker push nouraldeen152/app-frontend:$BUILD_NUMBER              && docker push nouraldeen152/app-backend:$BUILD_NUMBER '
+                }
+            }
+        }       
+        stage('test') {
+            steps {
+                sh "echo test stage"
+            }
+        }
+        stage('deploy') {
+            steps {
+                sh 'cd ./depi-angular-app && docker compose up -d' 
+            }
+        }
+    }
+}
+
+```
+
+### 4. Run the Pipeline
+
+Once the pipeline is configured, Jenkins will automatically trigger the build, push, and deploy stages whenever changes are pushed to the repository.
 
 ## **Conclusion**
 
 You have successfully deployed a **3-Tier Application** using **Docker, Docker Compose, Kubernetes, and a Private Container Registry**. 🚀
-
 If you encounter any issues, check logs using:
 
 ```sh
 kubectl logs <pod-name>
 ```
+
+By following these steps, you will have a fully functional Nginx Ingress setup for your 3-tier application, with automated deployment using Jenkins. This setup ensures that your application is accessible externally and can be updated seamlessly through CI/CD pipelines.
 
 Enjoy your scalable and containerized application! 🎉
 
