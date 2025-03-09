@@ -2,12 +2,6 @@ pipeline {
     agent any
 
     stages {
-        stage('pull src') {
-            steps {
-                echo 'pull src code from github repo'
-                git branch: 'main', url: 'https://github.com/nouraldeen417/deploy-3tier-app.git'
-            }
-        }
         stage('build docker image') {
             steps {
                     sh "ls -l"
