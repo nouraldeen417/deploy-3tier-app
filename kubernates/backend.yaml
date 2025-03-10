@@ -7,7 +7,7 @@ metadata:
   name: backend
 spec:
   containers:
-  - image: 192.168.1.150:5000/my-backend
+  - image: nouraldeen152/app-backend:30
     name: backend
     ports:
     - containerPort: 3000
@@ -22,7 +22,9 @@ spec:
       value: "angular"  # Change this URL dynamically
     
     resources: {}
-  dnsPolicy: ClusterFirst
+  nodeSelector:
+    app: nour
+  dnsPolicy: ClusterFirstdocker
   restartPolicy: Always
 status: {}
 

@@ -7,7 +7,7 @@ metadata:
   name: frontend
 spec:
   containers:
-  - image: 192.168.1.150:5000/my-frontend:latest
+  - image: nouraldeen152/app-frontend:30
     name: frontend
     ports:
     - containerPort: 80
