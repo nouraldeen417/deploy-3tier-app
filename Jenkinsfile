@@ -66,7 +66,7 @@ pipeline {
 
              sh """
                 mkdir -p ${WORKSPACE}/.kube
-                cp ~/.kube/config ${KUBECONFIG}
+                cp /root/.kube/config ${KUBECONFIG}
                 chmod 600 ${KUBECONFIG}
                """
               dir('kubernates/') {
