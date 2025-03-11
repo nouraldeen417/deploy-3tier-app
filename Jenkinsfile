@@ -70,6 +70,7 @@ pipeline {
                         echo ${KUBECONFIG_BASE64} | base64 --decode > ${KUBECONFIG}
                         chmod 600 ${KUBECONFIG}
                     """
+                }
               dir('kubernates/') {
                 sh """
                 kubectl get nodes --kubeconfig=${KUBECONFIG}
