@@ -1,7 +1,5 @@
 pipeline {
     agent any
-pipeline {
-    agent any
     // Define parameters
     parameters {
         choice(
@@ -80,8 +78,10 @@ pipeline {
                 ./manage.sh apply
 
                     """  
+                }
                 // sh 'cd ./depi-angular-app && docker compose up -d' 
             }
         }
     }
 }
+
