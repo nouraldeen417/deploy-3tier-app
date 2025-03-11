@@ -16,7 +16,16 @@ spec:
     - to: nourgroup5depi@gmail.com # Replace with your Gmail address
       from: nourgroup5depi@gmail.com # Replace with your Gmail address
       smarthost: smtp.gmail.com:587
+      authIdentity: nourgroup5depi@gmail.com
       authUsername: nourgroup5depi@gmail.com # Replace with your Gmail address
       authPassword:
         name: password
-        key:  N226n152!        # Replace with your Gmail App Password
+        key:  pass       # Replace with your Gmail App Password
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: password
+  namespace: promethus
+data:
+  pass: aW9ndyB2bHJ1IHNqb3YgYXlvYwo= #iogw vlru sjov ayoc
