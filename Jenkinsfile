@@ -63,12 +63,13 @@ pipeline {
         }
         stage('deploy') {
             steps {
-
-             sh """
-                mkdir -p ${WORKSPACE}/.kube
-                cp /root/.kube/config ${KUBECONFIG}
-                chmod 600 ${KUBECONFIG}
-               """
+                withCredentials([string(credentialsId: 'kubeconfig-secret', variable: 'KUBECONFIG_BASE64')]) {
+                    // Decode the kubeconfig and write it to a file
+                    sh """
+                        mkdir -p ${WORKSPACE}/.kube
+                        echo ${KUBECONFIG_BASE64} | base64 --decode > ${KUBECONFIG}
+                        chmod 600 ${KUBECONFIG}
+                    """
               dir('kubernates/') {
                 sh """
                 kubectl get nodes --kubeconfig=${KUBECONFIG}
