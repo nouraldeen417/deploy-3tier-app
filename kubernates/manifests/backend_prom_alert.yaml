@@ -1,0 +1,22 @@
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: AlertmanagerConfig
+metadata:
+  name: email-notifications
+  namespace: promethus # Replace with your namespace
+spec:
+  route:
+    receiver: email-receiver
+    matchers:
+    - name: alertname
+      value: HighCPUUsage
+    repeatInterval: 3h
+  receivers:
+  - name: email-receiver
+    emailConfigs:
+    - to: nourgroup5depi@gmail.com # Replace with your Gmail address
+      from: nourgroup5depi@gmail.com # Replace with your Gmail address
+      smarthost: smtp.gmail.com:587
+      authUsername: nourgroup5depi@gmail.com # Replace with your Gmail address
+      authPassword:
+        name: password
+        key:  N226n152!        # Replace with your Gmail App Password

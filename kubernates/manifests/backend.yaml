@@ -7,7 +7,7 @@ metadata:
   name: backend
 spec:
   containers:
-  - image: nouraldeen152/app-backend:30
+  - image: nouraldeen152/app-backend:32
     name: backend
     ports:
     - containerPort: 3000
@@ -20,11 +20,14 @@ spec:
       value: "rootpassword"  # Change this URL dynamically
     - name: DB_NAME
       value: "angular"  # Change this URL dynamically
-    
-    resources: {}
+    resources:
+      limits:
+        cpu: "200m"  # 0.2 CPU core
+      requests:
+        cpu: "100m"   # 0.1 CPU core    
   nodeSelector:
     app: nour
-  dnsPolicy: ClusterFirstdocker
+  dnsPolicy: ClusterFirst
   restartPolicy: Always
 status: {}
 
@@ -32,6 +35,8 @@ status: {}
 apiVersion: v1
 kind: Service
 metadata:
+  labels:
+    tier: backend
   name: backend
 spec:
   type: NodePort
@@ -41,5 +46,25 @@ spec:
     - protocol: TCP
       port: 3000
       targetPort: 3000
-      nodePort: 30008 
+      nodePort: 30008
+      name: backend-svc
 
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    release: prometheus-stack
+  name: nodejs-monitor
+spec:
+  endpoints:
+  - interval: 30s
+    targetPort: 3000
+    port: backend-svc
+    path: /metrics
+  namespaceSelector:
+    matchNames:
+    - default
+  selector:
+    matchLabels:
+      tier: backend

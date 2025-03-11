@@ -1,0 +1,22 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: cpu-usage-alerts
+  namespace: promethus # Replace with your namespace
+  labels:
+    app: kube-prometheus-stack
+    release: prometheus-stack
+spec:
+  groups:
+  - name: cpu-usage
+    rules:
+    - alert: HighCPUUsage
+      expr:  (sum(rate(container_cpu_usage_seconds_total{pod="backend", namespace="default"}[5m]))) /(sum(kube_pod_container_resource_limits{resource="cpu", pod="backend", namespace="default"})) *100 > 70
+      for: 5m
+      labels:
+        severity: critical
+        namespace: promethus # Replace with your namespace
+
+      annotations:
+        summary: "High CPU usage detected"
+        description: "CPU usage for {{ $labels.pod }} in namespace {{ $labels.namespace }} is above 70% (current value: {{ $value }}%)."

@@ -7,13 +7,13 @@ metadata:
   name: frontend
 spec:
   containers:
-  - image: nouraldeen152/app-frontend:30
+  - image: nouraldeen152/app-frontend:32
     name: frontend
     ports:
     - containerPort: 80
     env:
     - name: API_URL
-      value: "http://192.168.1.100:30008"  # Change this URL dynamically
+      value: "http://192.168.1.150:30008"  # Change this URL dynamically
   nodeSelector:
     app: nour
   dnsPolicy: ClusterFirst
